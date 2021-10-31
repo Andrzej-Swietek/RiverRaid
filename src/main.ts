@@ -4,6 +4,7 @@ import Panel from "./components/Panel";
 import {Plane} from "./components/Plane";
 import {Directions} from "./Directions";
 
+
 const app = document.querySelector<HTMLDivElement>('#app')!
 
 class Game {
@@ -18,10 +19,9 @@ class Game {
     }
     public start(){
         this.panel.mount(app);
+        this.panel.init();
         this.board.drawGrass();
         this.board.drawRiver();
-        this.board.drawPlane();
-
 
         window.addEventListener('keydown', (e:KeyboardEvent)=> {
             if(e.keyCode == 39){
