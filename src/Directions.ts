@@ -1,4 +1,5 @@
 export enum Directions {
     LEFT,
-    RIGHT
+    RIGHT,
+    NONE
 }

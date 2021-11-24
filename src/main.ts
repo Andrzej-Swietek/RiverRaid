@@ -2,7 +2,7 @@ import './style.css'
 import Board from "./components/Board";
 import Panel from "./components/Panel";
 import {Plane} from "./components/Plane";
-import {Directions} from "./Directions";
+
 
 
 const app = document.querySelector<HTMLDivElement>('#app')!
@@ -23,14 +23,21 @@ class Game {
         this.board.drawGrass();
         this.board.drawRiver();
 
-        window.addEventListener('keydown', (e:KeyboardEvent)=> {
-            if(e.keyCode == 39){
-                this.plane.move( Directions.RIGHT )
-            }
-            if(e.keyCode == 37){
-                this.plane.move( Directions.LEFT )
-            }
-        })
+        // window.addEventListener('keydown', (e:KeyboardEvent)=> {
+        //     if(e.keyCode == 32){
+        //         //TODO:    SHOOT
+        //     }
+        //     if(e.keyCode == 39){
+        //         this.plane.move( Directions.RIGHT )
+        //     }
+        //     if(e.keyCode == 37){
+        //         this.plane.move( Directions.LEFT )
+        //     }
+        // })
+
+        // window.addEventListener('keyup', (e:KeyboardEvent)=> {
+            // this.plane.move( Directions.NONE )
+        // })
 
         this.board.update();
     }

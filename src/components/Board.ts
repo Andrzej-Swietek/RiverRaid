@@ -1,6 +1,11 @@
-import {Plane} from "./Plane";
+import { Plane } from "./Plane";
 import Balloon from "./Balloon";
 import Cruiser from "./Cruiser";
+import Bolt from "./Bolt";
+import Keyboard from "../Engine/Keyboard";
+import Movements from "../Engine/decorators/Movements";
+import {Directions} from "../Directions";
+
 
 
 export default class Board {
@@ -11,7 +16,8 @@ export default class Board {
     private readonly riverWidth: number;
     private plane: Plane
     private speedFactor = 1;
-
+    private stage: Array<object>
+    keyboard: Keyboard
 
     constructor( planeObject: Plane) {
         this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -21,6 +27,13 @@ export default class Board {
         this.height = this.canvas.height;
         this.riverWidth = this.width/4;
         this.plane = planeObject;
+        this.keyboard = new Keyboard(window,this.plane)
+
+        this.stage = [
+            new Balloon(100,100),
+            new Cruiser(300, 200),
+            new Bolt(500, 200)
+        ]
     }
     public drawGrass(): void {
         this.ctx.fillStyle = 'green';
@@ -48,18 +61,24 @@ export default class Board {
     }
 
     public update(): void {
+        // new Bolt(0,0).draw(this.ctx,30, 30)
         this.clearCanvas();
         this.drawGrass();
         this.drawRiver();
         this.speedFactor-= .3;
         this.plane.draw(this.ctx, null, this.height*0.9);
 
-        const balloon = new Balloon(100,100);
-        balloon.draw(this.ctx,100,100);
+        // PLANE MOVEMENT ON KEYBOARD
+        if ( Movements.moveLeft ){      this.plane.move( Directions.LEFT )      }
+        else if ( Movements.moveRight ) {   this.plane.move( Directions.RIGHT )     }
+        else if ( Movements.attack ) {  }
 
-        const cruiser = new Cruiser(300, 200);
-        cruiser.draw(this.ctx,300,100);
-
+        // REDRAW ALL STAGE ELEMENTS
+        this.stage.forEach( (stageElement: Balloon| Cruiser | Bolt) => {
+            stageElement.draw(this.ctx, stageElement.x, stageElement.y )
+        })
+        this.ctx.fillStyle = 'yellow';
+        this.ctx.fillRect(this.plane.x+this.plane.width/2,this.height*0.6,2,10)
 
         requestAnimationFrame(this.update.bind(this))
     }
