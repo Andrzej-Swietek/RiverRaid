@@ -1,4 +1,5 @@
 import {BoardElement} from "../Engine/BoardElement";
+import Board from "./Board";
 
 export default class Cruiser extends BoardElement{
     public x: number;
@@ -20,5 +21,9 @@ export default class Cruiser extends BoardElement{
             ctx.drawImage(this.image, x, y, this.width, this.height)
         else
             ctx.drawImage(this.image, this.x, y, this.width, this.height)
+    }
+
+    update(): void {
+        this.y += Board.riverSpeed
     }
 }

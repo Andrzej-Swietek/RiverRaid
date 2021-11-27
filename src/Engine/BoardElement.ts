@@ -4,5 +4,6 @@ export abstract class BoardElement {
     protected abstract readonly width: number;
     protected abstract readonly height: number;
     protected constructor() { }
-    public abstract draw(ctx: CanvasRenderingContext2D, x: number, y: number): void
+    public abstract draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
+    public abstract update(...args: any): void;
 }

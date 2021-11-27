@@ -5,6 +5,9 @@ import Bolt from "./Bolt";
 import Keyboard from "../Engine/Keyboard";
 import Movements from "../Engine/decorators/Movements";
 import {Directions} from "../Directions";
+import {BoardElement} from "../Engine/BoardElement";
+import Fuel from "./Fuel";
+import EnemyPlane from "./EnemyPlane";
 
 
 
@@ -18,6 +21,7 @@ export default class Board {
     private speedFactor = 1;
     private stage: Array<object>
     keyboard: Keyboard
+    static riverSpeed: number = 1;
 
     constructor( planeObject: Plane) {
         this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -30,9 +34,11 @@ export default class Board {
         this.keyboard = new Keyboard(window,this.plane)
 
         this.stage = [
-            new Balloon(100,100),
-            new Cruiser(300, 200),
-            new Bolt(500, 200)
+            new Balloon(this.width/2,20),
+            new Cruiser(this.width/2+30, 100),
+            new Bolt(this.width/2, 100),
+            new Fuel(this.width/2+20, 20),
+            new EnemyPlane(this.width/2+20, 50)
         ]
     }
     public drawGrass(): void {
@@ -71,14 +77,29 @@ export default class Board {
         // PLANE MOVEMENT ON KEYBOARD
         if ( Movements.moveLeft ){      this.plane.move( Directions.LEFT )      }
         else if ( Movements.moveRight ) {   this.plane.move( Directions.RIGHT )     }
-        else if ( Movements.attack ) {  }
+        else if ( Movements.attack ) { this.stage.push( new Bolt(this.plane.x + this.plane.width/2, this.height*0.8) ) }
 
+        let mentToBeRemoved = []
         // REDRAW ALL STAGE ELEMENTS
-        this.stage.forEach( (stageElement: Balloon| Cruiser | Bolt) => {
-            stageElement.draw(this.ctx, stageElement.x, stageElement.y )
+        if ( this.stage.length > 0 ) {
+            this.stage.forEach( (stageElement: BoardElement) => {
+                stageElement.draw(this.ctx, stageElement.x, stageElement.y );
+                if ( stageElement instanceof Bolt) (stageElement as Bolt).update();
+                stageElement.update();
+                if ( stageElement.y > this.height || stageElement.y < 0 ) {
+                    console.log(`%c ${stageElement.constructor.name}`, 'color: red' )
+                    mentToBeRemoved.push( stageElement )
+                }
+            })
+        }
+        mentToBeRemoved.forEach( (stageElement: BoardElement) => {
+            this.stage = [ ...this.stage.filter( item => item !== stageElement ) ]
+            console.log( stageElement, this.stage )
         })
-        this.ctx.fillStyle = 'yellow';
-        this.ctx.fillRect(this.plane.x+this.plane.width/2,this.height*0.6,2,10)
+
+
+        // this.ctx.fillStyle = 'yellow';
+        // this.ctx.fillRect(this.plane.x+this.plane.width/2,this.height*0.6,2,10)
 
         requestAnimationFrame(this.update.bind(this))
     }

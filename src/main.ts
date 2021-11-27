@@ -22,6 +22,7 @@ class Game {
         this.panel.init();
         this.board.drawGrass();
         this.board.drawRiver();
+        this.panel.start();
 
         // window.addEventListener('keydown', (e:KeyboardEvent)=> {
         //     if(e.keyCode == 32){

@@ -1,10 +1,15 @@
-export default class Balloon {
+import {BoardElement} from "../Engine/BoardElement";
+import Board from "./Board";
+
+
+export default class Balloon extends BoardElement{
     public x: number;
     public y: number;
-    private readonly width: number;
-    private readonly height: number;
+    protected readonly width: number;
+    protected readonly height: number;
     private readonly image;
     constructor(x: number,y: number) {
+        super();
         this.x = x;
         this.y = y;
         this.image = document.querySelector('#balloon');
@@ -17,5 +22,9 @@ export default class Balloon {
             ctx.drawImage(this.image, x, y, this.width, this.height)
         else
             ctx.drawImage(this.image, this.x, y, this.width, this.height)
+    }
+
+    update(): void {
+        this.y += Board.riverSpeed
     }
 }
