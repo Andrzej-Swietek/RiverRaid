@@ -27,4 +27,7 @@ export default class Balloon extends BoardElement{
     update(): void {
         this.y += Board.riverSpeed
     }
+    public getSize(): { w: number, h: number }  {
+        return { w: this.width, h: this.height }
+    }
 }

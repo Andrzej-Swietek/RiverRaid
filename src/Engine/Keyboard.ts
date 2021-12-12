@@ -32,6 +32,7 @@ export default class Keyboard {
         switch (event.keyCode) {
             case KEYS.up:
             case KEYS.w:
+                Movements.speedUp = false;
                 break;
             case KEYS.left:
             case KEYS.a:
@@ -55,16 +56,17 @@ export default class Keyboard {
         switch (event.keyCode) {
             case KEYS.up:
             case KEYS.w:
+                Movements.speedUp = true
                 break;
             case KEYS.left:
             case KEYS.a:
                 Movements.moveLeft = true
-                console.log('left')
+                // console.log('left')
                 break;
             case KEYS.right:
             case KEYS.d:
                 Movements.moveRight = true
-                console.log('right')
+                // console.log('right')
                 break;
             case KEYS.down:
             case KEYS.s:

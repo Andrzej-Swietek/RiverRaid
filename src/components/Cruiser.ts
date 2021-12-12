@@ -7,6 +7,7 @@ export default class Cruiser extends BoardElement{
     protected readonly width: number;
     protected readonly height: number;
     private readonly image;
+    // private direction: string = 'left';
     constructor(x: number,y: number) {
         super();
         this.x = x;
@@ -25,5 +26,9 @@ export default class Cruiser extends BoardElement{
 
     update(): void {
         this.y += Board.riverSpeed
+        this.x = this.x - 2
+     }
+    public getSize(): { w: number, h: number }  {
+        return { w: this.width, h: this.height }
     }
 }

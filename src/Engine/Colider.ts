@@ -1,9 +1,9 @@
 import {BoardElement} from "./BoardElement";
 
 type Zone = { x: number, y: number }
-export default class Colider {
-    private objectA: BoardElement;
-    private objectB: BoardElement;
+export default class Collider {
+    private readonly objectA: BoardElement;
+    private readonly objectB: BoardElement;
     zone : Zone
 
     constructor( objectA: BoardElement, objectB: BoardElement, zoneX: number, zoneY:number ) {

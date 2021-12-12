@@ -1,5 +1,6 @@
 export default {
     moveLeft: false,
     moveRight: false,
-    attack: false
+    attack: false,
+    speedUp: false
 }

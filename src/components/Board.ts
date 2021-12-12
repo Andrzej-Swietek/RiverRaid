@@ -8,6 +8,7 @@ import {Directions} from "../Directions";
 import {BoardElement} from "../Engine/BoardElement";
 import Fuel from "./Fuel";
 import EnemyPlane from "./EnemyPlane";
+import Bridge from "./Bridge";
 
 
 
@@ -22,6 +23,7 @@ export default class Board {
     private stage: Array<object>
     keyboard: Keyboard
     static riverSpeed: number = 1;
+    stopAttack: boolean = false;
 
     constructor( planeObject: Plane) {
         this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -34,6 +36,7 @@ export default class Board {
         this.keyboard = new Keyboard(window,this.plane)
 
         this.stage = [
+            new Bridge(0  , 10, this.width/2-100),
             new Balloon(this.width/2,20),
             new Cruiser(this.width/2+30, 100),
             new Bolt(this.width/2, 100),
@@ -50,15 +53,18 @@ export default class Board {
         }
     }
     public drawRiver(): void{
-        for ( let i=0; i < this.width ; i++ ){
+        // scan lines: = new Array(this.height)
+        for ( let i=0; i < this.height ; i++ ){
             this.ctx.fillStyle = 'brown';
-            this.ctx.fillRect(5 * Math.sin( i / 2 + this.speedFactor) + this.width / 2 - this.riverWidth/2-5,2 * i, 5, 2);
+            // let r = Math.random()*100;
+            let r = 1
+            this.ctx.fillRect(5 * Math.sin( (i / 2 + this.speedFactor) / r) + this.width / 2 - this.riverWidth/2-5,2 * i, 5, 2);
 
             this.ctx.fillStyle = 'blue';
-            this.ctx.fillRect(5 * Math.sin( i / 2 + this.speedFactor) + this.width / 2 - this.riverWidth/2,2 * i, this.riverWidth, 2);
+            this.ctx.fillRect(5 * Math.sin( (i / 2 + this.speedFactor) / r) + this.width / 2 - this.riverWidth/2,2 * i, this.riverWidth, 2);
 
             this.ctx.fillStyle = 'brown';
-            this.ctx.fillRect(5 * Math.sin( i / 2 + this.speedFactor) + this.width / 2 + this.riverWidth/2,2*i, 5, 2);
+            this.ctx.fillRect(5 * Math.sin( (i / 2 + this.speedFactor) / r) + this.width / 2 + this.riverWidth/2,2*i, 5, 2);
         }
     }
 
@@ -77,7 +83,7 @@ export default class Board {
         // PLANE MOVEMENT ON KEYBOARD
         if ( Movements.moveLeft ){      this.plane.move( Directions.LEFT )      }
         else if ( Movements.moveRight ) {   this.plane.move( Directions.RIGHT )     }
-        else if ( Movements.attack ) { this.stage.push( new Bolt(this.plane.x + this.plane.width/2, this.height*0.8) ) }
+        else if ( Movements.attack && !this.stopAttack ) { this.stage.push( new Bolt(this.plane.x + this.plane.width/2, this.height*0.8) ); this.stopAttack = true; setTimeout( ()=> this.stopAttack = false,500 ) }
 
         let mentToBeRemoved = []
         // REDRAW ALL STAGE ELEMENTS
@@ -87,15 +93,44 @@ export default class Board {
                 if ( stageElement instanceof Bolt) (stageElement as Bolt).update();
                 stageElement.update();
                 if ( stageElement.y > this.height || stageElement.y < 0 ) {
-                    console.log(`%c ${stageElement.constructor.name}`, 'color: red' )
+                    // console.log(`%c ${stageElement.constructor.name}`, 'color: red' )
                     mentToBeRemoved.push( stageElement )
                 }
             })
         }
+
+        // COLLISIONS
+        this.stage.forEach( (stageElement: BoardElement)=> {
+            this.stage.forEach( (element: BoardElement)=>  {
+                if (
+                    element !== stageElement
+                    && ( stageElement.x > element.x && stageElement.x < element.x + element.getSize().w )
+                    && (stageElement.y < element.y && stageElement.y > element.y - element.getSize().h)
+                ) {
+                    console.log('collision', element.constructor.name, stageElement.constructor.name);
+                    // if ( stageElement instanceof Bolt){
+                       mentToBeRemoved.push(stageElement)
+                       mentToBeRemoved.push(element)
+                    // }
+                }
+            })
+        })
+
         mentToBeRemoved.forEach( (stageElement: BoardElement) => {
             this.stage = [ ...this.stage.filter( item => item !== stageElement ) ]
-            console.log( stageElement, this.stage )
+            // console.log( stageElement, this.stage )
+            let r = Math.floor(Math.random() *10);
+            if ( r == 1 )
+                this.stage.push( new Balloon(this.width/2,0)  )
+            else if ( r == 2 )
+                this.stage.push( new EnemyPlane(this.width/2,0)  )
+            else if ( r == 3 )
+                this.stage.push( new Cruiser(this.width/2,0)  )
+            else if ( r == 4 )
+                this.stage.push( new Fuel(this.width/2,0)  )
+
         })
+
 
 
         // this.ctx.fillStyle = 'yellow';

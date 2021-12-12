@@ -17,4 +17,7 @@ export default class Bolt {
     public update() {
         this.y--;
     }
+    public getSize(): { w: number, h: number }  {
+        return { w: this.width, h: this.height }
+    }
 }

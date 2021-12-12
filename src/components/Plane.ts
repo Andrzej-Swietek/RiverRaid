@@ -21,7 +21,7 @@ export class Plane {
         else
             this.x+= this.FACTOR;
 
-        console.log( direction , this.x );
+        // console.log( direction , this.x );
     }
 
     public draw(ctx: CanvasRenderingContext2D, x: number, y: number){
