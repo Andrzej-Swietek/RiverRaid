@@ -7,6 +7,7 @@ export default class EnemyPlane extends BoardElement{
     x: number;
     y: number;
     private readonly image: HTMLImageElement;
+    private direction: string = 'left';
     constructor(x: number, y: number) {
         super();
         this.x = x;
@@ -21,10 +22,17 @@ export default class EnemyPlane extends BoardElement{
 
     update(): void {
         this.y += Board.riverSpeed
+        let dirCoefficient = ( this.direction == 'left' )? -1 : 1
+        this.x = this.x + 2*dirCoefficient;
     }
 
     public getSize(): { w: number, h: number }  {
         return { w: this.width, h: this.height }
     }
 
+    changeDirection() {
+        if ( this.direction == 'left' ) this.direction = 'right';
+        else this.direction = 'left';
+        this.image.src = ( this.direction == 'left' )? "src/assets/imgs/enemyPlane.png" : "src/assets/imgs/enemyPlane-rev.png"
+    }
 }

@@ -8,6 +8,7 @@ export default class Balloon extends BoardElement{
     protected readonly width: number;
     protected readonly height: number;
     private readonly image;
+    private direction: string = 'left';
     constructor(x: number,y: number) {
         super();
         this.x = x;
@@ -25,9 +26,17 @@ export default class Balloon extends BoardElement{
     }
 
     update(): void {
-        this.y += Board.riverSpeed
+        // this.y += Board.riverSpeed;
+        this.y += Board.riverSpeed;
+        let dirCoefficient = ( this.direction == 'left' )? -1 : 1
+        this.x = this.x + 2*dirCoefficient;
     }
     public getSize(): { w: number, h: number }  {
         return { w: this.width, h: this.height }
+    }
+
+    changeDirection() {
+        if ( this.direction == 'left' ) this.direction = 'right';
+        else this.direction = 'left';
     }
 }

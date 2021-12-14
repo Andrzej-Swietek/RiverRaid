@@ -22,6 +22,7 @@ export default class Board {
     public height: number;
     private readonly riverWidth: number;
     private plane: Plane
+    //@ts-ignore
     private speedFactor = 1;
     private stage: Array<object>
     keyboard: Keyboard
@@ -42,10 +43,10 @@ export default class Board {
         this.stage = [
             new Bridge(0  , 10, this.width/2-100),
             new Balloon(this.width/2,20),
-            new Cruiser(this.width/2+30, 100),
-            new Bolt(this.width/2, 100),
-            new Fuel(this.width/2+20, 20),
-            new EnemyPlane(this.width/2+20, 50)
+            // new Cruiser(this.width/2+30, 100),
+            // new Bolt(this.width/2, 100),
+            // new Fuel(this.width/2+20, 20),
+            // new EnemyPlane(this.width/2+20, 50)
         ];
         this.riverRows = [];
         for (let i = 0; i < this.height; i++) {
@@ -53,6 +54,9 @@ export default class Board {
             this.riverRows.push( obj );
         }
         console.log(this.riverRows)
+
+        setInterval(()=> this.spawnEnemy(), 1000)
+
     }
     public drawGrass(): void {
         this.ctx.fillStyle = 'green';
@@ -79,12 +83,27 @@ export default class Board {
 
         this.riverRows.forEach( (row: RiverRow, i)=> {
             this.ctx.fillStyle = "blue"
-            this.ctx.fillRect( row.x, i, row.width, 1 )
+            this.ctx.fillRect( row.x, i, row.width, 3 )
         })
     }
 
     public clearCanvas(): void {
         this.ctx.clearRect(0,0,this.width, this.height);
+    }
+
+    spawnEnemy() {
+        let r = Math.floor(Math.random() *10);
+        if ( r == 1 )
+            this.stage.push( new Balloon(this.width/2,0)  )
+        else if ( r == 2 )
+            this.stage.push( new EnemyPlane(this.width/2,0)  )
+        else if ( r == 3 )
+            this.stage.push( new Cruiser(this.width/2,0)  )
+        else if ( r == 4 )
+            this.stage.push( new Fuel(this.width/2,0)  )
+        else {
+            this.stage.push( new Cruiser(this.width/2,0)  )
+        }
     }
 
     public update(): void {
@@ -138,41 +157,35 @@ export default class Board {
             // ) {
             //     console.log( 'boom', stageElement )
             // }
-        }) 
+        })
 
         // COLLISION WITH RIVER
         if ( this.plane.x < this.riverRows[this.plane.y].x || this.plane.x > this.riverRows[this.plane.y].x + this.riverRows[this.plane.y].width){
             console.log('OUT')
         }
-
-        mentToBeRemoved.forEach( (stageElement: BoardElement) => {
-            this.stage = [ ...this.stage.filter( item => item !== stageElement ) ]
-            // console.log( stageElement, this.stage )
-            let r = Math.floor(Math.random() *10);
-            if ( r == 1 )
-                this.stage.push( new Balloon(this.width/2,0)  )
-            else if ( r == 2 )
-                this.stage.push( new EnemyPlane(this.width/2,0)  )
-            else if ( r == 3 )
-                this.stage.push( new Cruiser(this.width/2,0)  )
-            else if ( r == 4 )
-                this.stage.push( new Fuel(this.width/2,0)  )
-
+        this.stage.forEach( (element: any)=> {
+            if( ( element.constructor.name=="Balloon" || element.constructor.name=="Cruiser" ||  element.constructor.name=="EnemyPlane") && element.y < this.height )
+            if ( element.x < this.riverRows[element.y].x || element.x > this.riverRows[element.y].x + this.riverRows[element.y].width){
+                element.changeDirection?.();
+            }
         })
 
 
-        this.riverRows.shift()
+
+
+        mentToBeRemoved.forEach( (stageElement: BoardElement) => {
+            this.stage = [ ...this.stage.filter( item => item !== stageElement ) ]
+        })
+
+
+        this.riverRows.pop()
         let randomN = randomNumber(1,5);
-        randomN *= ( randomN%2 === 0  && this.riverRows[this.riverRows.length-1].x < 3/7  *this.width )? 1 : -1
-        this.riverRows.push(
-            {
-                x: this.riverRows[this.riverRows.length-1].x+randomN ,
-                width: this.riverRows[this.riverRows.length-1].width+randomN,
-                xend: this.riverRows[this.riverRows.length-1].x + this.riverRows[this.riverRows.length-1].width + 2* randomN
-            }
-        )
-        // this.riverRows.pop();
-        // this.riverRows.push()
+        randomN *= ( randomN%2 === 0  && this.riverRows[0].x < 3/7  *this.width )? 1 : -1
+        this.riverRows.unshift({
+                x: this.riverRows[0].x+randomN ,
+                width: this.riverRows[0].width+randomN,
+                xend: this.riverRows[0].x + this.riverRows[0].width + 2* randomN
+            })
 
         requestAnimationFrame(this.update.bind(this))
     }
