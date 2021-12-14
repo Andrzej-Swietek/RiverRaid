@@ -9,7 +9,10 @@ import {BoardElement} from "../Engine/BoardElement";
 import Fuel from "./Fuel";
 import EnemyPlane from "./EnemyPlane";
 import Bridge from "./Bridge";
+import {randomNumber} from "../utils/random";
 
+
+export type RiverRow = { x: number, width: number, xend: number  }
 
 
 export default class Board {
@@ -24,6 +27,7 @@ export default class Board {
     keyboard: Keyboard
     static riverSpeed: number = 1;
     stopAttack: boolean = false;
+    private riverRows : RiverRow[] = [];
 
     constructor( planeObject: Plane) {
         this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -42,7 +46,13 @@ export default class Board {
             new Bolt(this.width/2, 100),
             new Fuel(this.width/2+20, 20),
             new EnemyPlane(this.width/2+20, 50)
-        ]
+        ];
+        this.riverRows = [];
+        for (let i = 0; i < this.height; i++) {
+            const obj : RiverRow = { x: this.width/2-this.riverWidth/2, width: this.riverWidth, xend: this.width/2-this.riverWidth/2 + this.riverWidth }
+            this.riverRows.push( obj );
+        }
+        console.log(this.riverRows)
     }
     public drawGrass(): void {
         this.ctx.fillStyle = 'green';
@@ -54,18 +64,23 @@ export default class Board {
     }
     public drawRiver(): void{
         // scan lines: = new Array(this.height)
-        for ( let i=0; i < this.height ; i++ ){
-            this.ctx.fillStyle = 'brown';
-            // let r = Math.random()*100;
-            let r = 1
-            this.ctx.fillRect(5 * Math.sin( (i / 2 + this.speedFactor) / r) + this.width / 2 - this.riverWidth/2-5,2 * i, 5, 2);
+        // for ( let i=0; i < this.height ; i++ ){
+        //     this.ctx.fillStyle = 'brown';
+        //     // let r = Math.random()*100;
+        //     let r = 1
+        //     this.ctx.fillRect(5 * Math.sin( (i / 2 + this.speedFactor) / r) + this.width / 2 - this.riverWidth/2-5,2 * i, 5, 2);
+        //
+        //     this.ctx.fillStyle = 'blue';
+        //     this.ctx.fillRect(5 * Math.sin( (i / 2 + this.speedFactor) / r) + this.width / 2 - this.riverWidth/2,2 * i, this.riverWidth, 2);
+        //
+        //     this.ctx.fillStyle = 'brown';
+        //     this.ctx.fillRect(5 * Math.sin( (i / 2 + this.speedFactor) / r) + this.width / 2 + this.riverWidth/2,2*i, 5, 2);
+        // }
 
-            this.ctx.fillStyle = 'blue';
-            this.ctx.fillRect(5 * Math.sin( (i / 2 + this.speedFactor) / r) + this.width / 2 - this.riverWidth/2,2 * i, this.riverWidth, 2);
-
-            this.ctx.fillStyle = 'brown';
-            this.ctx.fillRect(5 * Math.sin( (i / 2 + this.speedFactor) / r) + this.width / 2 + this.riverWidth/2,2*i, 5, 2);
-        }
+        this.riverRows.forEach( (row: RiverRow, i)=> {
+            this.ctx.fillStyle = "blue"
+            this.ctx.fillRect( row.x, i, row.width, 1 )
+        })
     }
 
     public clearCanvas(): void {
@@ -114,7 +129,21 @@ export default class Board {
                     // }
                 }
             })
-        })
+
+            // COLLISION OF PLANE
+            // if (
+            //     stageElement.constructor.name !== "Bolt"
+            //     && ( stageElement.x > this.plane.x && stageElement.x < this.plane.x + this.plane.width )
+            //     && ( stageElement.y == this.plane.y )
+            // ) {
+            //     console.log( 'boom', stageElement )
+            // }
+        }) 
+
+        // COLLISION WITH RIVER
+        if ( this.plane.x < this.riverRows[this.plane.y].x || this.plane.x > this.riverRows[this.plane.y].x + this.riverRows[this.plane.y].width){
+            console.log('OUT')
+        }
 
         mentToBeRemoved.forEach( (stageElement: BoardElement) => {
             this.stage = [ ...this.stage.filter( item => item !== stageElement ) ]
@@ -132,9 +161,18 @@ export default class Board {
         })
 
 
-
-        // this.ctx.fillStyle = 'yellow';
-        // this.ctx.fillRect(this.plane.x+this.plane.width/2,this.height*0.6,2,10)
+        this.riverRows.shift()
+        let randomN = randomNumber(1,5);
+        randomN *= ( randomN%2 === 0  && this.riverRows[this.riverRows.length-1].x < 3/7  *this.width )? 1 : -1
+        this.riverRows.push(
+            {
+                x: this.riverRows[this.riverRows.length-1].x+randomN ,
+                width: this.riverRows[this.riverRows.length-1].width+randomN,
+                xend: this.riverRows[this.riverRows.length-1].x + this.riverRows[this.riverRows.length-1].width + 2* randomN
+            }
+        )
+        // this.riverRows.pop();
+        // this.riverRows.push()
 
         requestAnimationFrame(this.update.bind(this))
     }
