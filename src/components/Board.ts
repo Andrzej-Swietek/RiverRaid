@@ -11,6 +11,7 @@ import EnemyPlane from "./EnemyPlane";
 import Bridge from "./Bridge";
 import {randomNumber} from "../utils/random";
 import Helikopter from "./Helikopter";
+import Panel from "./Panel";
 
 
 export type RiverRow = { x: number, width: number, xend: number  }
@@ -69,21 +70,9 @@ export default class Board {
         }
     }
     public drawRiver(): void{
-        // scan lines: = new Array(this.height)
-        // for ( let i=0; i < this.height ; i++ ){
-        //     this.ctx.fillStyle = 'brown';
-        //     // let r = Math.random()*100;
-        //     let r = 1
-        //     this.ctx.fillRect(5 * Math.sin( (i / 2 + this.speedFactor) / r) + this.width / 2 - this.riverWidth/2-5,2 * i, 5, 2);
-        //
-        //     this.ctx.fillStyle = 'blue';
-        //     this.ctx.fillRect(5 * Math.sin( (i / 2 + this.speedFactor) / r) + this.width / 2 - this.riverWidth/2,2 * i, this.riverWidth, 2);
-        //
-        //     this.ctx.fillStyle = 'brown';
-        //     this.ctx.fillRect(5 * Math.sin( (i / 2 + this.speedFactor) / r) + this.width / 2 + this.riverWidth/2,2*i, 5, 2);
-        // }
-
         this.riverRows.forEach( (row: RiverRow, i)=> {
+            this.ctx.fillStyle = "rgb(78,0,3)"
+            this.ctx.fillRect( row.x-5, i, row.width+10, 3 )
             this.ctx.fillStyle = "blue"
             this.ctx.fillRect( row.x, i, row.width, 3 )
         })
@@ -131,6 +120,7 @@ export default class Board {
         return isCollision || isCollision2
     }
 
+
     public update(): void {
         // new Bolt(0,0).draw(this.ctx,30, 30)
         this.clearCanvas();
@@ -177,6 +167,10 @@ export default class Board {
                 this.ctx.fillStyle = "purple"
                 this.ctx.fillRect(stageElement.x,stageElement.y, 10,10)
                 console.log(' %c boom: '+ stageElement.constructor.name + `plane ${this.plane.x},${this.plane.y} ${this.plane.getSize().w}x${this.plane.getSize().h} ` + ` - stageEl ${stageElement.x},${stageElement.y} ${stageElement.getSize().w}x${stageElement.getSize().h}`, 'color: yellow')
+                if ( stageElement instanceof Fuel) {
+                    document.querySelector<Panel>("component-panel").fuel = 3;
+                }
+
             }
         })
 

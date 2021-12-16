@@ -23,6 +23,16 @@ export default class Panel extends HTMLComponent{
         return this._hp;
     }
 
+    public set fuel(v: number){
+        this._fuel += v;
+        this._fuel = Math.min(100, this._fuel);
+        if ( this._fuel == 100 ) query<HTMLElement>`#caption`.innerHTML = `${ 1 }/${ 1 }`;
+        if ( this._fuel == 75 ) query<HTMLElement>`#caption`.innerHTML = `${ 3 }/${ 4 }`;
+        if ( this._fuel == 50 ) query<HTMLElement>`#caption`.innerHTML = `${ 1 }/${ 2 }`;
+        if ( this._fuel == 25 ) query<HTMLElement>`#caption`.innerHTML = `${ 1 }/${ 4 }`;
+        if ( this._fuel == 0 )  query<HTMLElement>`#caption`.innerHTML = `${ 0 }/${ 0 }`;
+    }
+
     init(){
         this.updateScore(0);
         this.updateHP(5);
@@ -43,7 +53,7 @@ export default class Panel extends HTMLComponent{
             if (this._fuel == 0) clearInterval(fuelInterval);
             if ( this._fuel > 0) this._fuel-=0.5;
             query<HTMLElement>`#marker`.style.left = `${ this._fuel }%`;
-
+            if ( this._fuel == 100 ) query<HTMLElement>`#caption`.innerHTML = `${ 1 }/${ 1 }`;
             if ( this._fuel == 75 ) query<HTMLElement>`#caption`.innerHTML = `${ 3 }/${ 4 }`;
             if ( this._fuel == 50 ) query<HTMLElement>`#caption`.innerHTML = `${ 1 }/${ 2 }`;
             if ( this._fuel == 25 ) query<HTMLElement>`#caption`.innerHTML = `${ 1 }/${ 4 }`;
