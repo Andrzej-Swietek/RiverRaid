@@ -25,9 +25,15 @@ export class Plane {
     }
 
     public draw(ctx: CanvasRenderingContext2D, x: number, y: number){
+        ctx.fillStyle = "purple"
+        ctx.fillRect(this.x,this.y, this.width, this.height)
         if (x)
             ctx.drawImage(this.planeImg, x, y, this.width, this.height)
         else
             ctx.drawImage(this.planeImg, this.x, y, this.width, this.height)
+    }
+
+    public getSize(): { w: number, h: number }  {
+        return { w: this.width, h: this.height }
     }
 }

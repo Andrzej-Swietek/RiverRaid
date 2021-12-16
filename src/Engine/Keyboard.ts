@@ -29,6 +29,7 @@ export default class Keyboard {
     }
 
     onKeyUp(event) {
+        document.querySelector<HTMLImageElement>("#plane").src = "src/assets/imgs/plane.png"
         switch (event.keyCode) {
             case KEYS.up:
             case KEYS.w:
@@ -36,7 +37,7 @@ export default class Keyboard {
                 break;
             case KEYS.left:
             case KEYS.a:
-                Movements.moveLeft = false
+                Movements.moveLeft = false;
                 break;
             case KEYS.right:
             case KEYS.d:
@@ -61,12 +62,12 @@ export default class Keyboard {
             case KEYS.left:
             case KEYS.a:
                 Movements.moveLeft = true
-                // console.log('left')
+                document.querySelector<HTMLImageElement>("#plane").src = "src/assets/imgs/plane-left.png"
                 break;
             case KEYS.right:
             case KEYS.d:
                 Movements.moveRight = true
-                // console.log('right')
+                document.querySelector<HTMLImageElement>("#plane").src = "src/assets/imgs/plane-right.png"
                 break;
             case KEYS.down:
             case KEYS.s:

@@ -1,13 +1,14 @@
 import {BoardElement} from "../Engine/BoardElement";
 import Board from "./Board";
 
+
 export default class Cruiser extends BoardElement{
     public x: number;
     public y: number;
     protected readonly width: number;
     protected readonly height: number;
     private readonly image;
-    private direction: string = 'left';
+    private direction: string = 'left'
     constructor(x: number,y: number) {
         super();
         this.x = x;
@@ -18,6 +19,10 @@ export default class Cruiser extends BoardElement{
     }
 
     public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void{
+        ctx.fillStyle = "green"
+        ctx.fillRect(x,y, this.width, this.height)
+        ctx.fillStyle = "red"
+        ctx.fillRect(this.x,this.y,this.width,this.height)
         if (x)
             ctx.drawImage(this.image, x, y, this.width, this.height)
         else

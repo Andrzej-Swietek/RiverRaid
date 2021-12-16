@@ -16,9 +16,7 @@ export default class Fuel extends BoardElement{
         this.height = 20;
     }
     draw(ctx: CanvasRenderingContext2D, x: number, y: number): void {
-        // ctx.fillStyle = 'green';
-        // ctx.fillRect(x,y,this.width,this.height)
-        ctx.drawImage(this.image, x, y+this.height, this.width, this.height);
+        ctx.drawImage(this.image, x, y, this.width, this.height);
     }
 
     public getSize(): { w: number, h: number }  {

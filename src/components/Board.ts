@@ -10,6 +10,7 @@ import Fuel from "./Fuel";
 import EnemyPlane from "./EnemyPlane";
 import Bridge from "./Bridge";
 import {randomNumber} from "../utils/random";
+import Helikopter from "./Helikopter";
 
 
 export type RiverRow = { x: number, width: number, xend: number  }
@@ -38,6 +39,7 @@ export default class Board {
         this.height = this.canvas.height;
         this.riverWidth = this.width/4;
         this.plane = planeObject;
+        this.plane.y = this.height*0.9;
         this.keyboard = new Keyboard(window,this.plane)
 
         this.stage = [
@@ -97,13 +99,36 @@ export default class Board {
             this.stage.push( new Balloon(this.width/2,0)  )
         else if ( r == 2 )
             this.stage.push( new EnemyPlane(this.width/2,0)  )
-        else if ( r == 3 )
+        else if ( r == 3  || r == 6)
             this.stage.push( new Cruiser(this.width/2,0)  )
         else if ( r == 4 )
             this.stage.push( new Fuel(this.width/2,0)  )
         else {
-            this.stage.push( new Cruiser(this.width/2,0)  )
+            this.stage.push( new Helikopter(this.width/2,0)  )
         }
+    }
+
+    isPointInObject(x:number,y:number, element: BoardElement|Plane) : boolean {
+        return ( x >= element.x && x <= element.x + element.getSize().w ) && ( y >= element.y && y <= element.y + element.getSize().h )
+    }
+
+    collision(obj1:BoardElement|Plane, obj2:BoardElement|Plane) {
+        const arr = [
+            { x: obj1.x, y: obj1.y },
+            { x: obj1.x, y: obj1.y + obj1.getSize().h },
+            { x: obj1.x + obj1.getSize().w, y: obj1.y },
+            { x: obj1.x + obj1.getSize().w, y: obj1.y + obj1.getSize().h },
+        ]
+        const arr2 = [
+            { x: obj2.x, y: obj2.y },
+            { x: obj2.x, y: obj2.y + obj2.getSize().h },
+            { x: obj2.x + obj2.getSize().w, y: obj2.y },
+            { x: obj2.x + obj2.getSize().w, y: obj2.y + obj2.getSize().h },
+        ]
+        const isCollision: boolean = this.isPointInObject(arr[0].x , arr[0].y, obj2) || this.isPointInObject( arr[1].x , arr[1].y, obj2) || this.isPointInObject(arr[2].x , arr[2].y, obj2) || this.isPointInObject( arr[3].x , arr[3].y, obj2);
+        const isCollision2: boolean = this.isPointInObject(arr2[0].x , arr2[0].y, obj1) || this.isPointInObject( arr2[1].x , arr2[1].y, obj1) || this.isPointInObject(arr2[2].x , arr2[2].y, obj1) || this.isPointInObject( arr2[3].x , arr2[3].y, obj1)
+
+        return isCollision || isCollision2
     }
 
     public update(): void {
@@ -148,15 +173,11 @@ export default class Board {
                     // }
                 }
             })
-
-            // COLLISION OF PLANE
-            // if (
-            //     stageElement.constructor.name !== "Bolt"
-            //     && ( stageElement.x > this.plane.x && stageElement.x < this.plane.x + this.plane.width )
-            //     && ( stageElement.y == this.plane.y )
-            // ) {
-            //     console.log( 'boom', stageElement )
-            // }
+            if ( this.collision( this.plane, stageElement ) && stageElement.constructor.name!="Bolt" ){
+                this.ctx.fillStyle = "purple"
+                this.ctx.fillRect(stageElement.x,stageElement.y, 10,10)
+                console.log(' %c boom: '+ stageElement.constructor.name + `plane ${this.plane.x},${this.plane.y} ${this.plane.getSize().w}x${this.plane.getSize().h} ` + ` - stageEl ${stageElement.x},${stageElement.y} ${stageElement.getSize().w}x${stageElement.getSize().h}`, 'color: yellow')
+            }
         })
 
         // COLLISION WITH RIVER
@@ -164,19 +185,15 @@ export default class Board {
             console.log('OUT')
         }
         this.stage.forEach( (element: any)=> {
-            if( ( element.constructor.name=="Balloon" || element.constructor.name=="Cruiser" ||  element.constructor.name=="EnemyPlane") && element.y < this.height )
+            if( ( element.constructor.name=="Balloon" || element.constructor.name=="Helikopter" || element.constructor.name=="Cruiser" ||  element.constructor.name=="EnemyPlane") && element.y < this.height )
             if ( element.x < this.riverRows[element.y].x || element.x > this.riverRows[element.y].x + this.riverRows[element.y].width){
                 element.changeDirection?.();
             }
         })
 
-
-
-
         mentToBeRemoved.forEach( (stageElement: BoardElement) => {
             this.stage = [ ...this.stage.filter( item => item !== stageElement ) ]
         })
-
 
         this.riverRows.pop()
         let randomN = randomNumber(1,5);

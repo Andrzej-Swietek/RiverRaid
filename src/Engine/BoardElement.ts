@@ -12,5 +12,7 @@ export abstract class BoardElement {
     public abstract update(...args: any): void;
 
     public abstract getSize(): { w: number, h: number };
+
+
 }
 
