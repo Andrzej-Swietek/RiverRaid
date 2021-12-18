@@ -31,6 +31,7 @@ export default class Panel extends HTMLComponent{
         if ( this._fuel == 50 ) query<HTMLElement>`#caption`.innerHTML = `${ 1 }/${ 2 }`;
         if ( this._fuel == 25 ) query<HTMLElement>`#caption`.innerHTML = `${ 1 }/${ 4 }`;
         if ( this._fuel == 0 )  query<HTMLElement>`#caption`.innerHTML = `${ 0 }/${ 0 }`;
+        query<HTMLElement>`#marker`.style.left = `${ this._fuel }%`;
     }
 
     init(){
