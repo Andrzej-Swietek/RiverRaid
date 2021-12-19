@@ -16,6 +16,9 @@ import {planeCrush} from "../Engine/Events";
 import {query} from "../Engine/Query";
 import Tank from "./Tank";
 
+import Boom from "./Boom";
+import Island from "./Island";
+
 
 export type RiverRow = { x: number, width: number, xend: number  }
 
@@ -45,9 +48,12 @@ export default class Board {
         this.width = this.canvas.width;
         this.height = this.canvas.height;
         this.riverWidth = this.width/4;
+
         this.plane = planeObject;
         this.plane.y = this.height*0.9;
+
         this.keyboard = new Keyboard(window,this.plane)
+
         this.hitValues.set("EnemyPlane", 60);
         this.hitValues.set("Helikopter", 40);
         this.hitValues.set("Fuel", 40);
@@ -55,26 +61,23 @@ export default class Board {
         this.hitValues.set("Balloon", 40);
         this.hitValues.set("Tank", 100);
         this.hitValues.set("Bridge", 200);
+        this.hitValues.set("Island", 0);
 
 
         window.addEventListener("keydown", (e: KeyboardEvent)=> {
-            console.log(e.keyCode)
             if (e.keyCode == 80 ) Board.pause = !(Board.pause)
         })
 
         this.stage = [
             new Bridge(0  , 10, this.width/2-100),
-            // new Balloon(this.width/2,20),
         ];
         this.riverRows = [];
         for (let i = 0; i < this.height; i++) {
             const obj : RiverRow = { x: this.width/2-this.riverWidth/2, width: this.riverWidth, xend: this.width/2-this.riverWidth/2 + this.riverWidth }
             this.riverRows.push( obj );
         }
-        console.log(this.riverRows)
 
         setInterval(()=> this.spawnEnemy(), 1000)
-
     }
     public drawGrass(): void {
         this.ctx.fillStyle = 'green';
@@ -101,7 +104,7 @@ export default class Board {
         this.ctx.clearRect(0,0,this.width, this.height);
     }
 
-    spawnEnemy() {
+    spawnEnemy(): void {
         let r = Math.floor(Math.random() *10);
         if ( r == 1 )
             this.stage.push( new Balloon(this.width/2,0)  )
@@ -113,8 +116,11 @@ export default class Board {
             this.stage.push( new Fuel(this.width/2,0)  )
         else if ( r == 5 )
             this.stage.push( new Tank((randomNumber(1,10)%2==0)? this.riverRows[0].x - 100 :this.riverRows[0].xend + 50,0)  )
+        else if ( r == 7 )
+            this.stage.push( new Island( (this.riverRows[0].x + this.riverRows[0].xend)/2- this.riverRows[0].width*0.2, 1,this.riverRows[0].width*0.4, 40 ) )
+            // this.stage.push( new Island(this.riverRows[0].x + 50, 1,this.riverRows[0].width*0.4, 40 ) )
         else {
-            this.stage.push( new Helikopter(this.width/2,0)  )
+            this.stage.push( new Helikopter(this.width/2,0, this.stage)  )
         }
     }
 
@@ -123,7 +129,7 @@ export default class Board {
     }
 
 
-    clearStage(){
+    clearStage(): void {
         this.stage = []
     }
 
@@ -169,8 +175,8 @@ export default class Board {
                     if ( stageElement instanceof Bolt) (stageElement as Bolt).update();
                     stageElement.update();
                     if ( stageElement.y > this.height || stageElement.y < 0 ) {
-                        // console.log(`%c ${stageElement.constructor.name}`, 'color: red' )
                         mentToBeRemoved.push( stageElement )
+                        if ( stageElement instanceof Helikopter) stageElement.killInterval()
                     }
                 })
             }
@@ -190,15 +196,16 @@ export default class Board {
                             let panel:Panel =  query<Panel>`component-panel`;
                             panel.updateScore( panel.points + this.hitValues.get(element.constructor.name) )
                         }
-                        else if ( stageElement instanceof Bolt ){
+                        else if ( stageElement instanceof Bolt && !(element instanceof Island)){
                             mentToBeRemoved.push(stageElement)
                             mentToBeRemoved.push(element)
                             let panel:Panel =  query<Panel>`component-panel`;
                             panel.updateScore( panel.points + this.hitValues.get(element.constructor.name) )
+                            this.stage.push( new Boom( element.x+element.getSize().w/2, element.y+element.getSize().h/2 ) )
                         }
                     }
                 })
-                if ( this.collision( this.plane, stageElement ) && stageElement.constructor.name!="Bolt" ){
+                if ( this.collision( this.plane, stageElement ) && stageElement.constructor.name!="Bolt" && stageElement.constructor.name!="Boom" ){
                     this.ctx.fillStyle = "purple"
                     this.ctx.fillRect(stageElement.x,stageElement.y, 10,10)
                     // console.log(' %c boom: '+ stageElement.constructor.name + `plane ${this.plane.x},${this.plane.y} ${this.plane.getSize().w}x${this.plane.getSize().h} ` + ` - stageEl ${stageElement.x},${stageElement.y} ${stageElement.getSize().w}x${stageElement.getSize().h}`, 'color: yellow')
@@ -216,7 +223,6 @@ export default class Board {
             if ( this.plane.x < this.riverRows[this.plane.y].x || this.plane.x > this.riverRows[this.plane.y].x + this.riverRows[this.plane.y].width){
                 console.log('OUT')
                 document.body.dispatchEvent(planeCrush)
-                // alert('OUT')
             }
             this.stage.forEach( (element: any)=> {
                 if( ( element.constructor.name=="Balloon" || element.constructor.name=="Helikopter" || element.constructor.name=="Cruiser" ||  element.constructor.name=="EnemyPlane") && element.y < this.height )
@@ -237,7 +243,6 @@ export default class Board {
                 width: this.riverRows[0].width+randomN,
                 xend: this.riverRows[0].x + this.riverRows[0].width + 2* randomN
             })
-
         }
 
         requestAnimationFrame(this.update.bind(this))

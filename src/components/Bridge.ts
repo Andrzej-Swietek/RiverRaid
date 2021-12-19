@@ -1,5 +1,6 @@
 import {BoardElement} from "../Engine/BoardElement";
 import Board from "./Board";
+import {query} from "../Engine/Query";
 
 export default class Bridge extends BoardElement{
     protected readonly height: number;
@@ -9,6 +10,7 @@ export default class Bridge extends BoardElement{
     open: boolean = false;
     fullWidth: number;
     openWidth: number;
+    barImage: HTMLImageElement;
 
     constructor(x: number, y: number, width: number) {
         super();
@@ -19,6 +21,7 @@ export default class Bridge extends BoardElement{
         this.fullWidth = width * 2 + 100;
         this.width = this.fullWidth;
         this.height = 2*5+2*10+2;
+        this.barImage = query<HTMLImageElement>`#barricade`
     }
     draw(ctx: CanvasRenderingContext2D, x: number, y: number): void {
         this.drawOneSide(ctx, x, y);
@@ -28,6 +31,7 @@ export default class Bridge extends BoardElement{
     drawBarricade(ctx: CanvasRenderingContext2D, x: number, y: number){
         ctx.fillStyle = "brown";
         ctx.fillRect(x+this.openWidth, y+17/2  ,x+600 - (x+this.openWidth) , 17);
+        ctx.drawImage(this.barImage, x+this.openWidth, y+17/2  ,x+600 - (x+this.openWidth) , 17)
     }
     drawOneSide(ctx: CanvasRenderingContext2D, x: number, y: number): void {
         let yellowHeight = 2;

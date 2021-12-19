@@ -1,5 +1,6 @@
 import {BoardElement} from "../Engine/BoardElement";
 import Board from "./Board";
+import EnemyBolt from "./EnemyBolt";
 
 export default class Helikopter extends BoardElement {
     protected readonly height: number;
@@ -8,9 +9,11 @@ export default class Helikopter extends BoardElement {
     private readonly imageR;
     x: number;
     y: number;
-    private direction: string = 'left';
+    private direction: 'left'|'right' = 'left';
+    private stage: Array<object>
+    private shootingInterval;
 
-    constructor(x: number,y: number) {
+    constructor(x: number,y: number, stage) {
         super();
         this.x = x;
         this.y = y;
@@ -18,6 +21,8 @@ export default class Helikopter extends BoardElement {
         this.imageR = document.querySelector('#helicopter-r');
         this.width = 35;
         this.height = 15;
+        this.stage = stage;
+        this.shootingInterval = setInterval( ()=> this.shoot(), 500 )
     }
 
     draw(ctx: CanvasRenderingContext2D, x: number, y: number): void {
@@ -37,9 +42,23 @@ export default class Helikopter extends BoardElement {
         this.x = this.x + 2*dirCoefficient;
     }
 
+
+    killInterval() {
+        clearInterval(this.shootingInterval)
+    }
+
     changeDirection() {
         if ( this.direction == 'left' ) this.direction = 'right';
         else this.direction = 'left';
+    }
+
+    shoot() {
+        const enemyBolt = new EnemyBolt(this.x+this.width, this.y + this.height/2, this.direction)
+        this.stage.push(enemyBolt)
+        setTimeout( ()=> {
+            this.stage = this.stage.filter( element => element !== enemyBolt )
+            console.log('del')
+        }, 1000 )
     }
 
 }
