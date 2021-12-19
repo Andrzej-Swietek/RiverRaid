@@ -25,8 +25,8 @@ export class Plane {
     }
 
     public draw(ctx: CanvasRenderingContext2D, x: number, y: number){
-        ctx.fillStyle = "purple"
-        ctx.fillRect(this.x,this.y, this.width, this.height)
+        // ctx.fillStyle = "purple"
+        // ctx.fillRect(this.x,this.y, this.width, this.height)
         if (x)
             ctx.drawImage(this.planeImg, x, y, this.width, this.height)
         else

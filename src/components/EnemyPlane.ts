@@ -7,17 +7,19 @@ export default class EnemyPlane extends BoardElement{
     x: number;
     y: number;
     private readonly image: HTMLImageElement;
+    private readonly imageR: HTMLImageElement;
     private direction: string = 'left';
     constructor(x: number, y: number) {
         super();
         this.x = x;
         this.y = y;
         this.image = document.querySelector('#enemyPlane');
+        this.imageR = document.querySelector('#enemyPlane-r');
         this.width = 50;
         this.height = 15;
     }
     draw(ctx: CanvasRenderingContext2D, x: number, y: number): void {
-        ctx.drawImage(this.image, x, y, this.width, this.height)
+        ctx.drawImage((this.direction == "left")? this.image : this.imageR, x, y, this.width, this.height)
     }
 
     update(): void {
@@ -33,6 +35,6 @@ export default class EnemyPlane extends BoardElement{
     changeDirection() {
         if ( this.direction == 'left' ) this.direction = 'right';
         else this.direction = 'left';
-        this.image.src = ( this.direction == 'left' )? "src/assets/imgs/enemyPlane.png" : "src/assets/imgs/enemyPlane-rev.png"
+        // this.image.src = ( this.direction == 'left' )? "src/assets/imgs/enemyPlane.png" : "src/assets/imgs/enemyPlane-rev.png"
     }
 }

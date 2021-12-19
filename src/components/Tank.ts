@@ -12,21 +12,32 @@ export default class Tank extends BoardElement{
         super();
         this.x = x;
         this.y = y;
-        this.image = document.querySelector('#cruiser');
-        this.width = 70;
-        this.height = 12;
+        this.image = document.querySelector('#tank');
+        this.width = 40;
+        this.height = 8;
     }
 
     public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void{
+        if ( x < 500 ) {
+            ctx.translate(x + this.width/2, y + this.width/2);
+            ctx.scale(-1, 1);
+            ctx.translate(-(x + this.width/2), -(y + this.width/2));
+        }
         if (x)
             ctx.drawImage(this.image, x, y, this.width, this.height)
         else
             ctx.drawImage(this.image, this.x, y, this.width, this.height)
+
+        if ( x < 500 ) {
+            ctx.translate(x + this.width/2, y + this.width/2);
+            ctx.scale(-1, 1);
+            ctx.translate(-(x + this.width/2), -(y + this.width/2));
+        }
     }
 
     update(): void {
         this.y += Board.riverSpeed
-        this.x = this.x - 2
+        // this.x = this.x - 2
     }
 
     public getSize(): { w: number, h: number }  {

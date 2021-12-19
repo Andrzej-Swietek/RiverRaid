@@ -19,12 +19,9 @@ export default class Balloon extends BoardElement{
     }
 
     public draw(ctx: CanvasRenderingContext2D, x: number, y: number){
-        // if (x)
-        //     ctx.drawImage(this.image, x, y, this.width, this.height)
-        // else
-        //     ctx.drawImage(this.image, this.x, y, this.width, this.height)
-            ctx.fillStyle = "red"
-            ctx.fillRect(x,y,this.width,this.height)
+        if (x)
+            ctx.drawImage(this.image, x, y, this.width, this.height)
+        else
             ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
     }
 

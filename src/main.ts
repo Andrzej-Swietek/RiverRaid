@@ -34,6 +34,9 @@ class Game {
         window.addEventListener('plane-crush', ()=> {
             console.log("HEART --")
             this.handleCrush()
+            this.panel.fillFuel();
+            this.panel.stop()
+            this.panel.start()
             if ( this.panel.hp == 0 ) {
                 alert('GAME OVER')
             }
@@ -64,8 +67,10 @@ class Game {
 
 }
 
+document.addEventListener("DOMContentLoaded", ()=> {
+    ( async ()=>{
+        const game = new Game();
+        game.start();
+    } )();
+})
 
-( async ()=>{
-    const game = new Game();
-    game.start();
-} )();

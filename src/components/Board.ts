@@ -14,6 +14,7 @@ import Helikopter from "./Helikopter";
 import Panel from "./Panel";
 import {planeCrush} from "../Engine/Events";
 import {query} from "../Engine/Query";
+import Tank from "./Tank";
 
 
 export type RiverRow = { x: number, width: number, xend: number  }
@@ -53,6 +54,13 @@ export default class Board {
         this.hitValues.set("Cruiser", 100);
         this.hitValues.set("Balloon", 40);
         this.hitValues.set("Tank", 100);
+        this.hitValues.set("Bridge", 200);
+
+
+        window.addEventListener("keydown", (e: KeyboardEvent)=> {
+            console.log(e.keyCode)
+            if (e.keyCode == 80 ) Board.pause = !(Board.pause)
+        })
 
         this.stage = [
             new Bridge(0  , 10, this.width/2-100),
@@ -103,6 +111,8 @@ export default class Board {
             this.stage.push( new Cruiser(this.width/2,0)  )
         else if ( r == 4 )
             this.stage.push( new Fuel(this.width/2,0)  )
+        else if ( r == 5 )
+            this.stage.push( new Tank((randomNumber(1,10)%2==0)? this.riverRows[0].x - 100 :this.riverRows[0].xend + 50,0)  )
         else {
             this.stage.push( new Helikopter(this.width/2,0)  )
         }
@@ -174,7 +184,13 @@ export default class Board {
                         && (stageElement.y < element.y && stageElement.y > element.y - element.getSize().h)
                     ) {
                         console.log('collision', element.constructor.name, stageElement.constructor.name);
-                        if ( stageElement instanceof Bolt ){
+                        if ( stageElement instanceof Bolt && element instanceof Bridge){
+                            mentToBeRemoved.push(stageElement)
+                            element.boltCollisionHandle()
+                            let panel:Panel =  query<Panel>`component-panel`;
+                            panel.updateScore( panel.points + this.hitValues.get(element.constructor.name) )
+                        }
+                        else if ( stageElement instanceof Bolt ){
                             mentToBeRemoved.push(stageElement)
                             mentToBeRemoved.push(element)
                             let panel:Panel =  query<Panel>`component-panel`;
@@ -185,7 +201,7 @@ export default class Board {
                 if ( this.collision( this.plane, stageElement ) && stageElement.constructor.name!="Bolt" ){
                     this.ctx.fillStyle = "purple"
                     this.ctx.fillRect(stageElement.x,stageElement.y, 10,10)
-                    console.log(' %c boom: '+ stageElement.constructor.name + `plane ${this.plane.x},${this.plane.y} ${this.plane.getSize().w}x${this.plane.getSize().h} ` + ` - stageEl ${stageElement.x},${stageElement.y} ${stageElement.getSize().w}x${stageElement.getSize().h}`, 'color: yellow')
+                    // console.log(' %c boom: '+ stageElement.constructor.name + `plane ${this.plane.x},${this.plane.y} ${this.plane.getSize().w}x${this.plane.getSize().h} ` + ` - stageEl ${stageElement.x},${stageElement.y} ${stageElement.getSize().w}x${stageElement.getSize().h}`, 'color: yellow')
                     if ( stageElement instanceof Fuel) {
                         document.querySelector<Panel>("component-panel").fuel = 3;
                         query<HTMLAudioElement>`#fuelSound`.play();
