@@ -1,5 +1,6 @@
 import {BoardElement} from "../Engine/BoardElement";
 import {query} from "../Engine/Query";
+import Board from "./Board";
 
 export default class Island extends BoardElement{
     protected readonly height: number;
@@ -28,7 +29,7 @@ export default class Island extends BoardElement{
     }
 
     update(): void {
-        this.y++;
+        this.y += Board.riverSpeed;
     }
 
 }

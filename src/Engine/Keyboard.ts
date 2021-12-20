@@ -1,5 +1,6 @@
 import { Plane } from "../components/Plane";
 import Movements from "./decorators/Movements";
+import Board from "../components/Board";
 
 const KEYS = {
     "left": 37,
@@ -34,6 +35,7 @@ export default class Keyboard {
             case KEYS.up:
             case KEYS.w:
                 Movements.speedUp = false;
+                Board.riverSpeed = 1
                 break;
             case KEYS.left:
             case KEYS.a:
@@ -45,6 +47,7 @@ export default class Keyboard {
                 break;
             case KEYS.down:
             case KEYS.s:
+                Board.riverSpeed = 1
                 break;
             case KEYS.spacebar:
                 Movements.attack = false
@@ -58,6 +61,7 @@ export default class Keyboard {
             case KEYS.up:
             case KEYS.w:
                 Movements.speedUp = true
+                Board.riverSpeed = 2
                 break;
             case KEYS.left:
             case KEYS.a:

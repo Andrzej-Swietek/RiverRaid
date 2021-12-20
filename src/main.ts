@@ -39,6 +39,7 @@ class Game {
             this.panel.start()
             if ( this.panel.hp == 0 ) {
                 alert('GAME OVER')
+                location.reload();
             }
         })
 
@@ -50,15 +51,19 @@ class Game {
     }
 
     private handleCrush() {
+
         Board.pause = true;
         this.panel.updateHP(this.panel.hp-1);
-        let newX = ( 2 * this.board.getCurrentRiverRow().x + this.board.getCurrentRiverRow().width ) / 2
-        // this.plane.x = this.board.width / 2 - 25/2;
-        this.plane.x = newX;
-        setTimeout(()=> {
-            this.board.clearStage();
-            Board.pause = false;
-        }, 2000);
+        this.board.deathAnimation().then( ()=>{
+            let newX = ( 2 * this.board.getCurrentRiverRow().x + this.board.getCurrentRiverRow().width ) / 2
+            // this.plane.x = this.board.width / 2 - 25/2;
+            this.plane.x = newX;
+            setTimeout(()=> {
+                this.board.clearStage();
+                Board.pause = false;
+            }, 2000);
+        })
+
     }
 
     public finish(){
@@ -69,8 +74,14 @@ class Game {
 
 document.addEventListener("DOMContentLoaded", ()=> {
     ( async ()=>{
-        const game = new Game();
-        game.start();
+        // query<HTMLAudioElement>`#engineSound`.addEventListener("loadedmetadata", ()=> {
+            setTimeout( ()=> {
+                console.log("ASSETS LOADED")
+                query<HTMLElement>`#banner`.remove();
+                const game = new Game();
+                game.start();
+            }, 3000)
+        // })
     } )();
 })
 

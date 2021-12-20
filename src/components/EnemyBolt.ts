@@ -1,3 +1,5 @@
+import Board from "./Board";
+
 export default class EnemyBolt {
     public x: number;
     public y: number;
@@ -21,7 +23,7 @@ export default class EnemyBolt {
     }
     public update() {
         this.x += (( this.direction == 'left' )? -1 : 1 ) * this.speed;
-        this.y++;
+        this.y += Board.riverSpeed;
     }
     public getSize(): { w: number, h: number }  {
         return { w: this.width, h: this.height }

@@ -22,7 +22,8 @@ export default class Helikopter extends BoardElement {
         this.width = 35;
         this.height = 15;
         this.stage = stage;
-        this.shootingInterval = setInterval( ()=> this.shoot(), 500 )
+        this.shootingInterval = setInterval( ()=> this.shoot(), 500 );
+        console.log(this.shootingInterval)
     }
 
     draw(ctx: CanvasRenderingContext2D, x: number, y: number): void {
@@ -55,10 +56,10 @@ export default class Helikopter extends BoardElement {
     shoot() {
         const enemyBolt = new EnemyBolt(this.x+this.width, this.y + this.height/2, this.direction)
         this.stage.push(enemyBolt)
-        setTimeout( ()=> {
-            this.stage = this.stage.filter( element => element !== enemyBolt )
-            console.log('del')
-        }, 1000 )
+        console.log('shoot')
+        // setTimeout( ()=> {
+        //     this.stage = this.stage.filter( element => element !== enemyBolt )
+        // }, 1000 )
     }
 
 }

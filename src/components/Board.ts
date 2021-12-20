@@ -62,6 +62,9 @@ export default class Board {
         this.hitValues.set("Tank", 100);
         this.hitValues.set("Bridge", 200);
         this.hitValues.set("Island", 0);
+        this.hitValues.set("Bolt", 0);
+        this.hitValues.set("EnemyBolt", 0);
+        this.hitValues.set("TankBolt", 0);
 
 
         window.addEventListener("keydown", (e: KeyboardEvent)=> {
@@ -104,30 +107,54 @@ export default class Board {
         this.ctx.clearRect(0,0,this.width, this.height);
     }
 
+    private isThereAlreadyAnIsland(): boolean {
+        let result: boolean = false;
+        this.stage.forEach( element=> {
+            if ( element.constructor.name === "Island" ) result = true
+        })
+
+        return result
+    }
+
     spawnEnemy(): void {
-        let r = Math.floor(Math.random() *10);
-        if ( r == 1 )
-            this.stage.push( new Balloon(this.width/2,0)  )
-        else if ( r == 2 )
-            this.stage.push( new EnemyPlane(this.width/2,0)  )
-        else if ( r == 3  || r == 6)
-            this.stage.push( new Cruiser(this.width/2,0)  )
-        else if ( r == 4 )
-            this.stage.push( new Fuel(this.width/2,0)  )
-        else if ( r == 5 )
-            this.stage.push( new Tank((randomNumber(1,10)%2==0)? this.riverRows[0].x - 100 :this.riverRows[0].xend + 50,0)  )
-        else if ( r == 7 )
-            this.stage.push( new Island( (this.riverRows[0].x + this.riverRows[0].xend)/2- this.riverRows[0].width*0.2, 1,this.riverRows[0].width*0.4, 40 ) )
+        if ( !Board.pause ) {
+            let r = Math.floor(Math.random() *10);
+            if ( r == 1 )
+                this.stage.push( new Balloon(this.width/2,0)  )
+            else if ( r == 2 )
+                this.stage.push( new EnemyPlane(this.width/2,0)  )
+            else if ( r == 3  || r == 6)
+                this.stage.push( new Cruiser(this.width/2,0)  )
+            else if ( r == 4 )
+                this.stage.push( new Fuel(this.width/2,0)  )
+            else if ( r == 5 )
+                this.stage.push( new Tank((randomNumber(1,10)%2==0)? this.riverRows[0].x - 100 :this.riverRows[0].xend + 50,0,this.stage)  )
+            else if ( r == 7 && !this.isThereAlreadyAnIsland() )
+                this.stage.push( new Island( (this.riverRows[0].x + this.riverRows[0].xend)/2- this.riverRows[0].width*0.2, 1,this.riverRows[0].width*0.4, 40 ) )
             // this.stage.push( new Island(this.riverRows[0].x + 50, 1,this.riverRows[0].width*0.4, 40 ) )
-        else {
-            this.stage.push( new Helikopter(this.width/2,0, this.stage)  )
+            else {
+                // this.stage.push( new Helikopter(this.width/2,0, this.stage)  )
+                this.stage.push( new Helikopter(this.riverRows[0].xend-30,0, this.stage)  )
+            }
         }
+    }
+
+    deathAnimation() {
+        return new Promise( (resolve => {
+            const boom = new Boom( this.plane.x + this.plane.width/2, this.plane.y + this.plane.height/2)
+            boom.draw(this.ctx, boom.x, boom.y)
+            this.ctx.fillStyle = "blue"
+            this.ctx.fillRect(this.plane.x, this.plane.y, this.plane.width,this.plane.height)
+            this.ctx.drawImage(query<HTMLImageElement>`#boom`,this.plane.x, this.plane.y, this.plane.width,this.plane.height)
+            setTimeout( ()=> {
+                resolve('ok')
+            } , 1000)
+        }) )
     }
 
     isPointInObject(x:number,y:number, element: BoardElement|Plane) : boolean {
         return ( x >= element.x && x <= element.x + element.getSize().w ) && ( y >= element.y && y <= element.y + element.getSize().h )
     }
-
 
     clearStage(): void {
         this.stage = []
@@ -152,7 +179,6 @@ export default class Board {
         return isCollision || isCollision2
     }
 
-
     public update(): void {
         if ( !Board.pause ) {
 
@@ -176,7 +202,7 @@ export default class Board {
                     stageElement.update();
                     if ( stageElement.y > this.height || stageElement.y < 0 ) {
                         mentToBeRemoved.push( stageElement )
-                        if ( stageElement instanceof Helikopter) stageElement.killInterval()
+                        if ( stageElement instanceof Helikopter || stageElement instanceof Tank ) stageElement.killInterval()
                     }
                 })
             }
@@ -206,8 +232,8 @@ export default class Board {
                     }
                 })
                 if ( this.collision( this.plane, stageElement ) && stageElement.constructor.name!="Bolt" && stageElement.constructor.name!="Boom" ){
-                    this.ctx.fillStyle = "purple"
-                    this.ctx.fillRect(stageElement.x,stageElement.y, 10,10)
+                    // this.ctx.fillStyle = "purple"
+                    // this.ctx.fillRect(stageElement.x,stageElement.y, 10,10)
                     // console.log(' %c boom: '+ stageElement.constructor.name + `plane ${this.plane.x},${this.plane.y} ${this.plane.getSize().w}x${this.plane.getSize().h} ` + ` - stageEl ${stageElement.x},${stageElement.y} ${stageElement.getSize().w}x${stageElement.getSize().h}`, 'color: yellow')
                     if ( stageElement instanceof Fuel) {
                         document.querySelector<Panel>("component-panel").fuel = 3;

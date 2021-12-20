@@ -108,3 +108,12 @@ component-panel > #hp {
   color: var(--yellow);
   font-size: 2rem;
 }
+
+#banner {
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  z-index: 999999999;
+}
