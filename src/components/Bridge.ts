@@ -27,13 +27,14 @@ export default class Bridge extends BoardElement{
         this.barImage = query<HTMLImageElement>`#barricade`
         this.riverRows = [...riverRows];
         this.openWidth = [...riverRows].slice(0,this.height).reduce( (acc:number,element: RiverRow)=> Math.max(acc, element.x) ,0)
-        this.rightSideWidth = this.fullWidth-this.openWidth-this.riverRows[0].width;
+        // this.rightSideWidth = this.fullWidth-this.openWidth-this.riverRows[0].width;
+        this.rightSideWidth = this.fullWidth;
     }
     draw(ctx: CanvasRenderingContext2D, x: number, y: number): void {
         this.drawOneSide(ctx, x, y);
         if ( !this.open ) this.drawBarricade(ctx, x, y);
         let xEnd = this.riverRows.slice(0,this.height).reduce( (acc:number,element: RiverRow)=> Math.min(acc, element.x+element.width) ,9999)
-        this.drawOneSide(ctx, xEnd, y);
+        this.drawOneSide(ctx, xEnd, y, 'right');
     }
     drawBarricade(ctx: CanvasRenderingContext2D, x: number, y: number){
         ctx.fillStyle = "brown";
