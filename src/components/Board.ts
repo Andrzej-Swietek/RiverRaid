@@ -18,6 +18,7 @@ import Tank from "./Tank";
 
 import Boom from "./Boom";
 import Island from "./Island";
+import Mountains from "./Mountains";
 
 
 export type RiverRow = { x: number, width: number, xend: number  }
@@ -82,6 +83,10 @@ export default class Board {
         }
 
         setInterval(()=> this.spawnEnemy(), 1000)
+        setInterval(()=> {
+            let x = randomNumber(0,10)%2==0? randomNumber( 5, this.riverRows[0].x-100 ) : randomNumber( this.riverRows[0].xend+100, this.width-100 )
+            this.stage.push( new Mountains( x, 0) )
+        }, 5000)
     }
     public drawGrass(): void {
         this.ctx.fillStyle = 'green';
@@ -132,9 +137,7 @@ export default class Board {
                 this.stage.push( new Tank((randomNumber(1,10)%2==0)? this.riverRows[0].x - 100 :this.riverRows[0].xend + 50,0,this.stage)  )
             else if ( r == 7 && !this.isThereAlreadyAnIsland() )
                 this.stage.push( new Island( (this.riverRows[0].x + this.riverRows[0].xend)/2- this.riverRows[0].width*0.2, 1,this.riverRows[0].width*0.4, 40 ) )
-            // this.stage.push( new Island(this.riverRows[0].x + 50, 1,this.riverRows[0].width*0.4, 40 ) )
             else {
-                // this.stage.push( new Helikopter(this.width/2,0, this.stage)  )
                 this.stage.push( new Helikopter(this.riverRows[0].xend-30,0, this.stage)  )
             }
         }

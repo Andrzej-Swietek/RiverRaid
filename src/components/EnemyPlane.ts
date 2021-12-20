@@ -25,7 +25,7 @@ export default class EnemyPlane extends BoardElement{
     update(): void {
         this.y += Board.riverSpeed
         let dirCoefficient = ( this.direction == 'left' )? -1 : 1
-        this.x = this.x + 2*dirCoefficient;
+        this.x = this.x + 2*dirCoefficient*1.5;
     }
 
     public getSize(): { w: number, h: number }  {
