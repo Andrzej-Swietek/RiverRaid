@@ -40,7 +40,9 @@ export default class Board {
     stopAttack: boolean = false;
     private riverRows : RiverRow[] = [];
     private hitValues = new Map<string, number>()
-    private killCounter: number = 0
+    private killCounter: number = 0;
+    private meanderDirection: 'left'|'right'|'straight' = 'straight';
+    private beforeTurn: number;
 
 
     constructor( planeObject: Plane) {
@@ -87,6 +89,11 @@ export default class Board {
             let x = randomNumber(0,10)%2==0? randomNumber( 5, this.riverRows[0].x-100 ) : randomNumber( this.riverRows[0].xend+100, this.width-100 )
             this.stage.push( new Mountains( x, 0) )
         }, 5000)
+
+        setInterval( () => {
+            this.meanderDirection = (randomNumber(0,2) % 2==0)? 'left' : 'right';
+            this.beforeTurn = this.riverRows[0].x;
+        }, 15000)
     }
     public drawGrass(): void {
         this.ctx.fillStyle = 'green';
@@ -132,10 +139,10 @@ export default class Board {
             else if ( r == 3  || r == 6)
                 this.stage.push( new Cruiser(this.width/2,0)  )
             else if ( r == 4 )
-                this.stage.push( new Fuel(this.width/2,0)  )
+                this.stage.push( new Fuel((2*this.riverRows[0].x + this.riverRows[0].width)/2-10,0)  )
             else if ( r == 5 )
                 this.stage.push( new Tank((randomNumber(1,10)%2==0)? this.riverRows[0].x - 100 :this.riverRows[0].xend + 50,0,this.stage)  )
-            else if ( r == 7 && !this.isThereAlreadyAnIsland() )
+            else if ( r == 7 && !this.isThereAlreadyAnIsland() && this.meanderDirection=="straight" && !this.stage.some( e => e.constructor.name == "Bridge" ) )
                 this.stage.push( new Island( (this.riverRows[0].x + this.riverRows[0].xend)/2- this.riverRows[0].width*0.2, 1,this.riverRows[0].width*0.4, 40 ) )
             else {
                 this.stage.push( new Helikopter(this.riverRows[0].xend-30,0, this.stage)  )
@@ -183,6 +190,57 @@ export default class Board {
         return isCollision || isCollision2
     }
 
+    drawMeander(riverWidth:number = this.riverRows[0].width):RiverRow {
+        const leftExtremum = this.width / 4;
+        const rightExtremum = 3 * this.width / 4 - riverWidth/2;
+        // const centerX = this.width/2-riverWidth/2;
+        const centerX = this.beforeTurn;
+        this.ctx.fillStyle = "black"
+        this.ctx.fillRect(centerX, 0, 10,10)
+
+        let resultX = 0;
+        if ( this.riverRows[0].x > leftExtremum && this.meanderDirection == 'left' ) {
+            resultX = this.riverRows[0].x - randomNumber(1,5);
+            if ( resultX <= leftExtremum ) {
+                this.meanderDirection = "straight"
+                setTimeout(() => {
+                    this.meanderDirection = "left"
+                }, 3000)
+            }
+        }
+        else if ( this.riverRows[0].x <= leftExtremum && this.meanderDirection == 'left' ) {
+            let factor = randomNumber(1,5) % 5 == 0? -1 : 1;
+            resultX = this.riverRows[0].x + randomNumber(1,5)*factor
+            if ( resultX >= centerX ) this.meanderDirection = 'straight'
+        }
+        else if ( this.riverRows[0].x < rightExtremum && this.meanderDirection == 'right' ) {
+            resultX = this.riverRows[0].x + randomNumber(1,5);
+            if ( resultX + this.riverRows[0].width >= rightExtremum ) {
+                this.meanderDirection = "straight"
+                setTimeout(() => {
+                    this.meanderDirection = "right"
+                }, 3000)
+            }
+        }
+        else if ( this.riverRows[0].x >= rightExtremum && this.meanderDirection == 'right' ) {
+            resultX = this.riverRows[0].x - randomNumber(1,5)
+            if ( resultX <= centerX ) this.meanderDirection = 'straight'
+        }
+        else if( this.meanderDirection == 'straight' ) {
+            let randomN = randomNumber(1,5);
+            randomN *= ( randomN%2 === 0  && this.riverRows[0].x < 3/7  * this.width )? 1 : -1
+
+            return {
+                x: this.riverRows[0].x+randomN ,
+                width: this.riverRows[0].width,
+                // width: this.riverRows[0].width+randomN,
+                xend: this.riverRows[0].x + this.riverRows[0].width + 2* randomN
+            }
+        }
+
+        return { x: resultX, width: this.riverRows[0].width, xend: resultX + this.riverRows[0].width }
+    }
+
     public update(): void {
         if ( !Board.pause ) {
 
@@ -219,7 +277,7 @@ export default class Board {
                         && ( stageElement.x > element.x && stageElement.x < element.x + element.getSize().w )
                         && (stageElement.y < element.y && stageElement.y > element.y - element.getSize().h)
                     ) {
-                        console.log('collision', element.constructor.name, stageElement.constructor.name);
+                        // console.log('collision', element.constructor.name, stageElement.constructor.name);
                         if ( stageElement instanceof Bolt && element instanceof Bridge){
                             mentToBeRemoved.push(stageElement)
                             element.boltCollisionHandle()
@@ -274,14 +332,19 @@ export default class Board {
                 this.stage = [ ...this.stage.filter( item => item !== stageElement ) ]
             })
 
-            this.riverRows.pop()
-            let randomN = randomNumber(1,5);
-            randomN *= ( randomN%2 === 0  && this.riverRows[0].x < 3/7  *this.width )? 1 : -1
-            this.riverRows.unshift({
-                x: this.riverRows[0].x+randomN ,
-                width: this.riverRows[0].width+randomN,
-                xend: this.riverRows[0].x + this.riverRows[0].width + 2* randomN
-            })
+            for (let i = 0 ; i < Board.riverSpeed; i++) {
+                this.riverRows.pop();
+                this.riverRows.unshift( this.drawMeander() )
+            }
+
+            // let randomN = randomNumber(1,5);
+            // randomN *= ( randomN%2 === 0  && this.riverRows[0].x < 3/7  *this.width )? 1 : -1
+            // this.riverRows.unshift({
+            //     x: this.riverRows[0].x+randomN ,
+            //     width: this.riverRows[0].width+randomN,
+            //     xend: this.riverRows[0].x + this.riverRows[0].width + 2* randomN
+            // })
+
         }
 
         requestAnimationFrame(this.update.bind(this))

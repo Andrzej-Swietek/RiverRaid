@@ -56,7 +56,6 @@ export default class Helikopter extends BoardElement {
     shoot() {
         const enemyBolt = new EnemyBolt(this.x+this.width, this.y + this.height/2, this.direction)
         this.stage.push(enemyBolt)
-        console.log('shoot')
         // setTimeout( ()=> {
         //     this.stage = this.stage.filter( element => element !== enemyBolt )
         // }, 1000 )
