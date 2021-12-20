@@ -75,14 +75,16 @@ export default class Board {
             if (e.keyCode == 80 ) Board.pause = !(Board.pause)
         })
 
-        this.stage = [
-            new Bridge(0  , 10, this.width/2-100),
-        ];
+
         this.riverRows = [];
         for (let i = 0; i < this.height; i++) {
             const obj : RiverRow = { x: this.width/2-this.riverWidth/2, width: this.riverWidth, xend: this.width/2-this.riverWidth/2 + this.riverWidth }
             this.riverRows.push( obj );
         }
+
+        this.stage = [
+            new Bridge(0  , 10, this.width/2-100, this.riverRows),
+        ];
 
         setInterval(()=> this.spawnEnemy(), 1000)
         setInterval(()=> {
@@ -133,11 +135,11 @@ export default class Board {
         if ( !Board.pause ) {
             let r = Math.floor(Math.random() *10);
             if ( r == 1 )
-                this.stage.push( new Balloon(this.width/2,0)  )
+                this.stage.push( new Balloon((2*this.riverRows[0].x + this.riverRows[0].width)/2-12,0)  )
             else if ( r == 2 )
-                this.stage.push( new EnemyPlane(this.width/2,0)  )
+                this.stage.push( new EnemyPlane((2*this.riverRows[0].x + this.riverRows[0].width)/2-25,0)  )
             else if ( r == 3  || r == 6)
-                this.stage.push( new Cruiser(this.width/2,0)  )
+                this.stage.push( new Cruiser((2*this.riverRows[0].x + this.riverRows[0].width)/2-35,0)  )
             else if ( r == 4 )
                 this.stage.push( new Fuel((2*this.riverRows[0].x + this.riverRows[0].width)/2-10,0)  )
             else if ( r == 5 )
@@ -195,8 +197,6 @@ export default class Board {
         const rightExtremum = 3 * this.width / 4 - riverWidth/2;
         // const centerX = this.width/2-riverWidth/2;
         const centerX = this.beforeTurn;
-        this.ctx.fillStyle = "black"
-        this.ctx.fillRect(centerX, 0, 10,10)
 
         let resultX = 0;
         if ( this.riverRows[0].x > leftExtremum && this.meanderDirection == 'left' ) {
@@ -208,7 +208,8 @@ export default class Board {
                 }, 3000)
             }
         }
-        else if ( this.riverRows[0].x <= leftExtremum && this.meanderDirection == 'left' ) {
+        // else if ( this.riverRows[0].x <= leftExtremum && this.meanderDirection == 'left' ) {
+        else if ( this.riverRows[0].x <= centerX && this.meanderDirection == 'left' ) {
             let factor = randomNumber(1,5) % 5 == 0? -1 : 1;
             resultX = this.riverRows[0].x + randomNumber(1,5)*factor
             if ( resultX >= centerX ) this.meanderDirection = 'straight'
@@ -293,12 +294,7 @@ export default class Board {
                             this.stage.push( new Boom( element.x+element.getSize().w/2, element.y+element.getSize().h/2 ) )
                             this.killCounter++;
                             if ( this.killCounter % 20 == 0 && this.killCounter> 0) {
-                                this.stage.push(new Bridge(0, 10, this.width / 2 - 100));
-                                this.riverRows = []
-                                for (let i = 0; i < this.height; i++) {
-                                    const obj : RiverRow = { x: this.width/2-this.riverWidth/2, width: this.riverWidth, xend: this.width/2-this.riverWidth/2 + this.riverWidth }
-                                    this.riverRows.push( obj );
-                                }
+                                this.stage.push(new Bridge(0, 0, this.width / 2 - 100, this.riverRows));
                             }
                         }
                     }
