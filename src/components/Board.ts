@@ -39,6 +39,7 @@ export default class Board {
     stopAttack: boolean = false;
     private riverRows : RiverRow[] = [];
     private hitValues = new Map<string, number>()
+    private killCounter: number = 0
 
 
     constructor( planeObject: Plane) {
@@ -221,6 +222,7 @@ export default class Board {
                             element.boltCollisionHandle()
                             let panel:Panel =  query<Panel>`component-panel`;
                             panel.updateScore( panel.points + this.hitValues.get(element.constructor.name) )
+                            panel.increaseBridge();
                         }
                         else if ( stageElement instanceof Bolt && !(element instanceof Island)){
                             mentToBeRemoved.push(stageElement)
@@ -228,17 +230,25 @@ export default class Board {
                             let panel:Panel =  query<Panel>`component-panel`;
                             panel.updateScore( panel.points + this.hitValues.get(element.constructor.name) )
                             this.stage.push( new Boom( element.x+element.getSize().w/2, element.y+element.getSize().h/2 ) )
+                            this.killCounter++;
+                            if ( this.killCounter % 20 == 0 && this.killCounter> 0) {
+                                this.stage.push(new Bridge(0, 10, this.width / 2 - 100));
+                                this.riverRows = []
+                                for (let i = 0; i < this.height; i++) {
+                                    const obj : RiverRow = { x: this.width/2-this.riverWidth/2, width: this.riverWidth, xend: this.width/2-this.riverWidth/2 + this.riverWidth }
+                                    this.riverRows.push( obj );
+                                }
+                            }
                         }
                     }
                 })
                 if ( this.collision( this.plane, stageElement ) && stageElement.constructor.name!="Bolt" && stageElement.constructor.name!="Boom" ){
-                    // this.ctx.fillStyle = "purple"
-                    // this.ctx.fillRect(stageElement.x,stageElement.y, 10,10)
                     // console.log(' %c boom: '+ stageElement.constructor.name + `plane ${this.plane.x},${this.plane.y} ${this.plane.getSize().w}x${this.plane.getSize().h} ` + ` - stageEl ${stageElement.x},${stageElement.y} ${stageElement.getSize().w}x${stageElement.getSize().h}`, 'color: yellow')
                     if ( stageElement instanceof Fuel) {
                         document.querySelector<Panel>("component-panel").fuel = 3;
                         query<HTMLAudioElement>`#fuelSound`.play();
                     } else {
+                        this.killCounter = 0;
                         document.body.dispatchEvent(planeCrush)
                     }
 

@@ -44,9 +44,10 @@ component-panel {
   background: gray;
   font-family: var(--font);
 }
+component-panel > #lv ,
 component-panel > #score {
   padding: 2rem;
-  width: 100%;
+  width: 45%;
   border-bottom: 1px solid #d6ef0b;
   color: #d6ef0b;
   display: flex;

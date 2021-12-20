@@ -6,7 +6,7 @@ import {planeCrush} from "../Engine/Events";
 
 @UIComponent({
     selector: 'component-panel',
-    template: `<div id="score"></div></div><div id="hp"></div><div id="fuel"> <div id="caption">1/1</div> <div id="marker"></div> `,
+    template: `<div id="score"></div>  <div id="lv"> Bridges 0 </div> <div id="hp"></div><div id="fuel"> <div id="caption">1/1</div> <div id="marker"></div> `,
     style: ``,
 })
 export default class Panel extends HTMLComponent{
@@ -14,6 +14,7 @@ export default class Panel extends HTMLComponent{
     private _hp: number = 5
     private _fuel: number = 100;
     private _fuelInterval;
+    private _bridges: number = 0
     constructor() {
         super();
     }
@@ -35,6 +36,11 @@ export default class Panel extends HTMLComponent{
         if ( this._fuel == 25 ) query<HTMLElement>`#caption`.innerHTML = `${ 1 }/${ 4 }`;
         if ( this._fuel == 0 )  query<HTMLElement>`#caption`.innerHTML = `${ 0 }/${ 0 }`;
         query<HTMLElement>`#marker`.style.left = `${ this._fuel }%`;
+    }
+
+    increaseBridge(){
+        this._bridges++;
+        query<HTMLElement>`#lv`.innerHTML = `Bridges: ${ this._bridges }`
     }
 
     init(){
