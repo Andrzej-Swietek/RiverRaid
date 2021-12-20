@@ -7,6 +7,10 @@ export default class Helikopter extends BoardElement {
     protected readonly width: number;
     private readonly image;
     private readonly imageR;
+    private readonly image2;
+    private readonly imageR2;
+    updateCounter = 0
+
     x: number;
     y: number;
     private direction: 'left'|'right' = 'left';
@@ -19,6 +23,8 @@ export default class Helikopter extends BoardElement {
         this.y = y;
         this.image = document.querySelector('#helicopter');
         this.imageR = document.querySelector('#helicopter-r');
+        this.image2 = document.querySelector('#helicopter2');
+        this.imageR2 = document.querySelector('#helicopter2-r');
         this.width = 35;
         this.height = 15;
         this.stage = stage;
@@ -28,9 +34,11 @@ export default class Helikopter extends BoardElement {
 
     draw(ctx: CanvasRenderingContext2D, x: number, y: number): void {
         if (x)
-            ctx.drawImage((this.direction == "left")? this.image : this.imageR, x, y, this.width, this.height)
+            // ctx.drawImage((this.direction == "left")? this.image : this.imageR, x, y, this.width, this.height)
+            ctx.drawImage((this.direction == "left")? ((this.updateCounter%2==0)?this.image:this.image2) : ((this.updateCounter%2==0)?this.imageR:this.imageR2), x, y, this.width, this.height)
         else
-            ctx.drawImage((this.direction == "left")? this.image : this.imageR, this.x, y, this.width, this.height)
+            ctx.drawImage((this.direction == "left")? ((this.updateCounter%2==0)?this.image:this.image2) : ((this.updateCounter%2==0)?this.imageR:this.imageR2), this.x, y, this.width, this.height)
+            // ctx.drawImage((this.direction == "left")? this.image : this.imageR, this.x, y, this.width, this.height)
     }
 
     getSize(): { w: number; h: number } {
@@ -41,6 +49,7 @@ export default class Helikopter extends BoardElement {
         this.y += Board.riverSpeed;
         let dirCoefficient = ( this.direction == 'left' )? -1 : 1
         this.x = this.x + 2*dirCoefficient;
+        this.updateCounter++;
     }
 
 
@@ -56,9 +65,6 @@ export default class Helikopter extends BoardElement {
     shoot() {
         const enemyBolt = new EnemyBolt(this.x+this.width, this.y + this.height/2, this.direction)
         this.stage.push(enemyBolt)
-        // setTimeout( ()=> {
-        //     this.stage = this.stage.filter( element => element !== enemyBolt )
-        // }, 1000 )
     }
 
 }
