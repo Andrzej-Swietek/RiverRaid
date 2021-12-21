@@ -118,3 +118,21 @@ component-panel > #hp {
   position: fixed;
   z-index: 999999999;
 }
+
+#gameOverContainer {
+  left: 25%;
+  top: -25vh;
+  width: 50vw;
+  height: 20vh;
+  position: fixed;
+  z-index: 999999999;
+  background: #aeacac;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 45px 45px;
+}
+#gameOverContainer > h1 {
+  font-family: var(--font);
+  color: var(--yellow);
+}

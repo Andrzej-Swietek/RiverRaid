@@ -32,18 +32,30 @@ class Game {
         this.audio.play();
 
         window.addEventListener('plane-crush', ()=> {
-            console.log("HEART --")
-            this.handleCrush()
-            this.panel.fillFuel();
-            this.panel.stop()
-            this.panel.start()
+            if  (this.panel.hp >= 1) {
+                console.log("HEART --")
+                this.handleCrush()
+                this.panel.fillFuel();
+                this.panel.stop()
+                this.panel.start()
+            }
             if ( this.panel.hp == 0 ) {
-                alert('GAME OVER')
-                location.reload();
+                // alert('GAME OVER')
+                Board.pause = true;
+                this.openGameOver()
+                this.audio.pause()
+                document.body.onclick = ()=> location.reload();
             }
         })
 
         this.board.update();
+    }
+
+    private openGameOver(){
+        setTimeout( ()=> {
+            query<HTMLElement>`#gameOverContainer`.style.top = parseInt(window.getComputedStyle( document.querySelector("#gameOverContainer") ).top.split("px")[0] )+50 + "px"
+            if ( parseInt(window.getComputedStyle( document.querySelector("#gameOverContainer") ).top.split("px")[0] ) < 0 ) this.openGameOver()
+        } ,500);
     }
 
     public restart(){
